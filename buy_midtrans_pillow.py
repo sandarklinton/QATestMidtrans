@@ -20,7 +20,10 @@ try:
 finally:
     driver.find_element_by_css_selector('.button-main.show').click()
 
-payment_list = [driver.find_element_by_class_name('list')]
+try:
+    WebDriverWait(driver,5).until(expected_conditions.presence_of_all_elements_located)
+finally:
+    payment_list = [driver.find_element_by_class_name('list')]
 payment_list[0].click()
 
 form_input = driver.find_element_by_name('cardnumber')
