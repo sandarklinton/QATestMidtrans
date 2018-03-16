@@ -3,7 +3,6 @@ import unittest
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
 
@@ -23,42 +22,52 @@ class BuyMidtransPillow(unittest.TestCase):
         #2. Click "BUY NOW"
         driver.find_element_by_css_selector('.btn.buy').click()
         self.assertIn('CHECKOUT', driver.find_element_by_class_name('cart-checkout').text)
+
         # 3. Click "CHECKOUT"
         driver.find_element_by_class_name('cart-checkout').click()
-        # can't use this, won't wait until iframe document fully loaded
-        # WebDriverWait(driver, 10).until(driver.find_element_by_xpath("/iframe/div[@id='app']"))
-        time.sleep(4)
+        # find something better than time.sleep lol
         driver.switch_to.frame(driver.find_element_by_tag_name('iframe'))
+        WebDriverWait(driver, 50).until(expected_conditions.text_to_be_present_in_element((By.ID, 'app'), 'CONTINUE'))
         self.assertIn('Continue', driver.page_source)
+
         # 4. Click "CONTINUE"
         driver.find_element_by_xpath("//a[@href='#/select-payment']").click()
-        # time.sleep(1)
+        self.assertIn('Credit Card', driver.page_source)
         # 5. Click "Credit Card"
         payment_list = [driver.find_element_by_class_name('list')]
         payment_list[0].click()
-        # time.sleep(1)
+        self.assertIn('Card number', driver.page_source)
         # 6. Enter Card number: 4811111111111114
         input_group = driver.find_elements_by_tag_name('input')
         input_group[0].send_keys('4811111111111114')
+
         # 7. Enter Expiry date: 01/23
         input_group[1].send_keys('01/23')
+
         # 8. Enter CVV: 123
         input_group[2].send_keys('123')
 
         # 9. Click "PAY NOW"
         driver.find_element_by_xpath("//a[@href='#/']").click()
+
         # 10. Enter Password:112233
         # the frame is different right now, relocate.
-        time.sleep(8)
         driver.switch_to.frame(driver.find_element_by_tag_name('iframe'))
+
+        WebDriverWait(driver, 50).until(
+            expected_conditions.text_to_be_present_in_element((By.TAG_NAME, 'div'), 'Issuing Bank'))
         driver.find_element_by_name('PaRes').send_keys('112233')
         # 11. Click OK
         driver.find_element_by_name('ok').click()
         # 12. Verify that the word "Transaction Successful" is visible.
         #iframe is changing again, relocate.
-        # driver.switch_to.parent_frame()
-        time.sleep(5)
+        driver.switch_to.parent_frame()
+        driver.switch_to.parent_frame()
         driver.switch_to.frame(driver.find_element_by_tag_name('iframe'))
+
+        WebDriverWait(driver, 50).until(
+            expected_conditions.text_to_be_present_in_element((By.ID, 'app'), 'Transaction successful'))
+
         assert "Transaction successful" in driver.page_source
 
     def tearDown(self):
