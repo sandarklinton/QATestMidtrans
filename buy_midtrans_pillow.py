@@ -68,6 +68,8 @@ class BuyMidtransPillow(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 
+
+# Dibawah ini adalah script sebelum menggunakan unitTest Python.
 #
 # driver = webdriver.Chrome()
 # driver.set_page_load_timeout(20)
